@@ -22,6 +22,37 @@ after complete the package  download and installation the error is gone, now you
 
 Step three: for run the application you can see a run button top right or left based on your code editor in andriod studio you can find it top right and vs code you can see run command select option from here based on your IDE, you can also run it via commad flutter run.
 
+Firebase Step instruction:
+
+step one : first go to the firebase console 
+https://console.firebase.google.com/u/0/
+in firebase console create a new project after clikc the new project enter your project name like chat-application or anything you want, it take some moments, wait until complete it.
+
+step two : after project setup is done you could add app in your firebase project , select flutter icon and click the next 
+in this phase you could give the following command in your global terminal like cmd or bash based on your operating system
+dart pub global activate flutterfire_cli
+
+then give the next command in your project level terminal : flutterfire configure --project=chat-app-d4cd9
+
+after give the above command you could see the project ios, andriod, web, mac, linux, 
+from here you could select your desired platform after select the platform it usually take some time based on your internent speed, after complete this step three new file automatically add in your project,
+firebase_otpions, googleservice , google_service.info.plist respotively lib, andriod and ios folder.
+
+Step Three: update your main.dart like following 
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+
+// ...
+
+await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+);
+
+after complete the following process, now you could again run your application.
+
+
+Note: Follow the Cureent Repository for further update.
+
 This project is a starting point for a Flutter application.
 
 A few resources to get you started if this is your first Flutter project:
