@@ -33,55 +33,70 @@ class AuthState {
   }
 }
 
-class AuthViewModel extends StateNotifier<AuthState> {
+class AuthViewModel extends ChangeNotifier {
   final FirebaseAuthService _authService;
   final UserRepository _userRepository;
   final FcmService _fcmService;
+
+  UserModel? _user;
+  bool _isAuthenticated = false;
+  bool _isLoading = false;
+  String? _error;
+
+  UserModel? get user => _user;
+  bool get isAuthenticated => _isAuthenticated;
+  bool get isLoading => _isLoading;
+  String? get error => _error;
 
   AuthViewModel({
     required FirebaseAuthService authService,
     required UserRepository userRepository,
     required FcmService fcmService,
-  }) : _authService = authService,
+  })  : _authService = authService,
         _userRepository = userRepository,
-        _fcmService = fcmService,
-        super(AuthState()) {
+        _fcmService = fcmService {
     _init();
   }
 
   void _init() {
-    _authService.authStateChanges.listen((user) async {
-      if (user != null) {
-        final userModel = await _userRepository.getUser(user.uid);
+    _authService.authStateChanges.listen((firebaseUser) async {
+      if (firebaseUser != null) {
+        final userModel = await _userRepository.getUser(firebaseUser.uid);
         if (userModel != null) {
-          await _userRepository.updateUserStatus(user.uid, true);
+          await _userRepository.updateUserStatus(firebaseUser.uid, true);
         }
-        state = state.copyWith(
-          user: userModel,
-          isAuthenticated: true,
-          isLoading: false,
-        );
+        _user = userModel;
+        _isAuthenticated = true;
+        _isLoading = false;
       } else {
-        state = state.copyWith(
-          user: null,
-          isAuthenticated: false,
-          isLoading: false,
-        );
+        _user = null;
+        _isAuthenticated = false;
+        _isLoading = false;
       }
+      notifyListeners();
     });
   }
 
   Future<void> signIn(String email, String password) async {
-    state = state.copyWith(isLoading: true, error: null);
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
     try {
       await _authService.signInWithEmail(email, password);
+      // authStateChanges stream will update the user automatically
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      _isLoading = false;
+      _error = e.toString();
+      notifyListeners();
     }
   }
 
   Future<void> signUp(String email, String password, String displayName) async {
-    state = state.copyWith(isLoading: true, error: null);
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
     try {
       final result = await _authService.createUserWithEmail(email, password);
       if (result != null) {
@@ -89,7 +104,7 @@ class AuthViewModel extends StateNotifier<AuthState> {
 
         final fcmToken = await _fcmService.getToken();
 
-        final user = UserModel(
+        final newUser = UserModel(
           uid: result.user!.uid,
           email: email,
           displayName: displayName,
@@ -99,17 +114,20 @@ class AuthViewModel extends StateNotifier<AuthState> {
           fcmToken: fcmToken,
         );
 
-        await _userRepository.createUser(user);
+        await _userRepository.createUser(newUser);
       }
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      _isLoading = false;
+      _error = e.toString();
+      notifyListeners();
     }
   }
 
   Future<void> signOut() async {
-    if (state.user != null) {
-      await _userRepository.updateUserStatus(state.user!.uid, false);
+    if (_user != null) {
+      await _userRepository.updateUserStatus(_user!.uid, false);
     }
     await _authService.signOut();
+    // Stream listener will handle resetting state
   }
 }
