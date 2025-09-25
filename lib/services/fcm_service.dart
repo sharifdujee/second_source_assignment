@@ -161,6 +161,7 @@ class FcmService {
       iOS: initializationSettingsIOS,
     );
 
+
     await _localNotifications.initialize(
       initializationSettings,
       /*onDidReceiveNotificationResponse: (NotificationResponse response) {
