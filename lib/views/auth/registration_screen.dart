@@ -4,39 +4,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../core/constants/app_constants.dart';
+
 import '../../core/utils/app_utils.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/custom_button.dart';
 import '../../core/dependency_injection/app_provider.dart';
 
-class RegisterScreen extends ConsumerStatefulWidget {
+
+
+
+
+class RegisterScreen extends ConsumerWidget {
   const RegisterScreen({super.key});
 
   @override
-  ConsumerState<RegisterScreen> createState() => _RegisterScreenState();
-}
-
-class _RegisterScreenState extends ConsumerState<RegisterScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _emailController.dispose();
-    _passwordController.dispose();
-    _confirmPasswordController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authViewModelProvider);
 
+    // Listen for auth state changes (error, success)
     ref.listen(authViewModelProvider, (previous, next) {
       if (next.error != null) {
         AppUtils.showSnackBar(context, next.error!, isError: true);
@@ -45,6 +30,22 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         context.go('/chat-list');
       }
     });
+
+    final _formKey = GlobalKey<FormState>();
+    final nameController = TextEditingController();
+    final emailController = TextEditingController();
+    final passwordController = TextEditingController();
+    final confirmPasswordController = TextEditingController();
+
+    void _signUp() {
+      if (_formKey.currentState!.validate()) {
+        ref.read(authViewModelProvider.notifier).signUp(
+          emailController.text.trim(),
+          passwordController.text,
+          nameController.text.trim(),
+        );
+      }
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -57,10 +58,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             key: _formKey,
             child: SingleChildScrollView(
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                   Text(
+                  Text(
                     'Create Account',
                     style: AppTextStyles.titleStyle,
                     textAlign: TextAlign.center,
@@ -78,20 +78,16 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
                   /// Full Name
                   CustomTextField(
-                    controller: _nameController,
+                    controller: nameController,
                     hintText: 'Full Name',
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your name';
-                      }
-                      return null;
-                    },
+                    validator: (value) =>
+                    value == null || value.isEmpty ? 'Please enter your name' : null,
                   ),
                   const SizedBox(height: 16),
 
                   /// Email
                   CustomTextField(
-                    controller: _emailController,
+                    controller: emailController,
                     hintText: 'Email',
                     keyboardType: TextInputType.emailAddress,
                     validator: (value) {
@@ -109,7 +105,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
                   /// Password
                   CustomTextField(
-                    controller: _passwordController,
+                    controller: passwordController,
                     hintText: 'Password',
                     obscureText: true,
                     validator: (value) {
@@ -126,14 +122,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
                   /// Confirm Password
                   CustomTextField(
-                    controller: _confirmPasswordController,
+                    controller: confirmPasswordController,
                     hintText: 'Confirm Password',
                     obscureText: true,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please confirm your password';
                       }
-                      if (value != _passwordController.text) {
+                      if (value != passwordController.text) {
                         return 'Passwords do not match';
                       }
                       return null;
@@ -141,7 +137,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  /// Submit
+                  /// Sign Up Button
                   CustomButton(
                     text: 'Sign Up',
                     isLoading: authState.isLoading,
@@ -149,6 +145,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   ),
                   const SizedBox(height: 16),
 
+                  /// Sign In Link
                   TextButton(
                     onPressed: () => context.pop(),
                     child: const Text('Already have an account? Sign In'),
@@ -161,14 +158,5 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       ),
     );
   }
-
-  void _signUp() {
-    if (_formKey.currentState!.validate()) {
-      ref.read(authViewModelProvider.notifier).signUp(
-        _emailController.text.trim(),
-        _passwordController.text,
-        _nameController.text.trim(),
-      );
-    }
-  }
 }
+

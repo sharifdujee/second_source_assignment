@@ -41,14 +41,7 @@ final chatRepositoryProvider = Provider<ChatRepository>((ref) {
   );
 });
 
-// ViewModels
-final authViewModelProvider = StateNotifierProvider<AuthViewModel, AuthState>((ref) {
-  return AuthViewModel(
-    authService: ref.watch(firebaseAuthServiceProvider),
-    userRepository: ref.watch(userRepositoryProvider),
-    fcmService: ref.watch(fcmServiceProvider),
-  );
-});
+
 
 final chatListViewModelProvider = StateNotifierProvider<ChatListViewModel, ChatListState>((ref) {
   return ChatListViewModel(
@@ -63,15 +56,11 @@ final profileViewModelProvider = StateNotifierProvider<ProfileViewModel, Profile
     authService: ref.watch(firebaseAuthServiceProvider),
   );
 });
-
 final authViewModelProvider = ChangeNotifierProvider<AuthViewModel>((ref) {
-  final authService = ref.watch(authServiceProvider);
-  final userRepo = ref.watch(userRepositoryProvider);
-  final fcmService = ref.watch(fcmServiceProvider);
-
   return AuthViewModel(
-    authService: authService,
-    userRepository: userRepo,
-    fcmService: fcmService,
+    authService: ref.read(firebaseAuthServiceProvider),
+    userRepository: ref.read(userRepositoryProvider),
+    fcmService: ref.read(fcmServiceProvider),
   );
 });
+

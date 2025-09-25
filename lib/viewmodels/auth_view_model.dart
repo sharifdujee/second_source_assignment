@@ -1,9 +1,10 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 
 import '../models/user.dart';
 import '../repositories/user_repository.dart';
 import '../services/fcm_service.dart';
 import '../services/firebase_auth_service.dart';
+import 'package:flutter/foundation.dart';
 
 class AuthState {
   final bool isLoading;
