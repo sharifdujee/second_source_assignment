@@ -51,7 +51,11 @@ await Firebase.initializeApp(
 after complete the following process, now you could again run your application.
 
 
-Note: Follow the Cureent Repository for further update.
+```markdown
+## 📌 Notes
+> 📝 **Important:**  
+> - Follow the current repository for future updates.  
+> - Make sure your internet connection is stable during Firebase setup.
 
 This project is a starting point for a Flutter application.
 
