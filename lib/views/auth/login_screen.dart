@@ -1,5 +1,6 @@
 import 'package:chat_application/core/constants/app_paddings.dart';
-import 'package:chat_application/core/constants/app_text_styles.dart';
+
+import 'package:chat_application/widgets/custom_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -21,8 +22,10 @@ class LoginScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    /// create a provider for authModelProvider, the auth model provider is define inside viewModels
     final authViewModel = ref.watch(authViewModelProvider);
 
+   /// initially check is user is already login navigate chat screen, for routing use go-router package
     ref.listen<AuthViewModel>(authViewModelProvider, (previous, next) {
       if (next.error != null) {
         AppUtils.showSnackBar(context, next.error!, isError: true);
@@ -37,26 +40,20 @@ class LoginScreen extends ConsumerWidget {
         child: Padding(
           padding: AppPaddings.defaultPadding,
           child: Form(
+            /// form key is used for check the form validation.
             key: _formKey,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(
-                  'Welcome Back',
-                  style: AppTextStyles.titleStyle,
-                  textAlign: TextAlign.center,
-                ),
+                /// custom text is define in constants directory inside core directory
+                CustomText(text: "Welcome Back", textAlign: TextAlign.center,fontSize: 24,),
+
                 const SizedBox(height: 8),
-                Text(
-                  'Sign in to your account',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey[600],
-                  ),
-                  textAlign: TextAlign.center,
-                ),
+                CustomText(text: "Sign in to your account", fontSize: 16,color: Colors.grey[600],),
+
                 const SizedBox(height: 48),
+                /// text field for enter user email here check the regular expression
                 CustomTextField(
                   controller: _emailController,
                   hintText: 'Email',
@@ -92,6 +89,7 @@ class LoginScreen extends ConsumerWidget {
                   text: 'Sign In',
                   isLoading: authViewModel.isLoading,
                   onPressed: () {
+                    /// here check the form validation email and password is empty or not
                     if (_formKey.currentState!.validate()) {
                       ref.read(authViewModelProvider).signIn(
                         _emailController.text.trim(),
