@@ -37,6 +37,7 @@ in this phase you could give the following command in your global terminal like 
 dart pub global activate flutterfire_cli
 
 then give the next command in your project level terminal : flutterfire configure --project=chat-app-d4cd9
+** Here is your project information it's use for example **
 
 after give the above command you could see the project ios, andriod, web, mac, linux, 
 from here you could select your desired platform after select the platform it usually take some time based on your internent speed, after complete this step three new file automatically add in your project,
