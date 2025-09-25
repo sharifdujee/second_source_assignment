@@ -63,3 +63,15 @@ final profileViewModelProvider = StateNotifierProvider<ProfileViewModel, Profile
     authService: ref.watch(firebaseAuthServiceProvider),
   );
 });
+
+final authViewModelProvider = ChangeNotifierProvider<AuthViewModel>((ref) {
+  final authService = ref.watch(authServiceProvider);
+  final userRepo = ref.watch(userRepositoryProvider);
+  final fcmService = ref.watch(fcmServiceProvider);
+
+  return AuthViewModel(
+    authService: authService,
+    userRepository: userRepo,
+    fcmService: fcmService,
+  );
+});
