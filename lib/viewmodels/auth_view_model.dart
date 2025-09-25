@@ -103,7 +103,7 @@ class AuthViewModel extends ChangeNotifier {
       if (result != null) {
         await _authService.updateDisplayName(displayName);
 
-        final fcmToken = await _fcmService.getToken();
+        //final fcmToken = await _fcmService.getToken();
 
         final newUser = UserModel(
           uid: result.user!.uid,
@@ -112,7 +112,7 @@ class AuthViewModel extends ChangeNotifier {
           createdAt: DateTime.now(),
           lastSeen: DateTime.now(),
           isOnline: true,
-          fcmToken: fcmToken,
+          //fcmToken: fcmToken,
         );
 
         await _userRepository.createUser(newUser);

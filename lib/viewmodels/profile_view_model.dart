@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import 'package:flutter/foundation.dart';
 import '../models/user.dart';
 import '../repositories/user_repository.dart';
 import '../services/firebase_auth_service.dart';
@@ -37,6 +37,7 @@ class ProfileState {
     );
   }
 }
+
 
 class ProfileViewModel extends StateNotifier<ProfileState> {
   final UserRepository _userRepository;
@@ -104,3 +105,6 @@ class ProfileViewModel extends StateNotifier<ProfileState> {
     }
   }
 }
+
+
+

@@ -75,50 +75,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
 
           if (otherUser == null) return const SizedBox.shrink();
 
-          return ListTile(
-            leading: CircleAvatar(
-              backgroundImage: otherUser.profilePictureUrl != null
-                  ? CachedNetworkImageProvider(otherUser.profilePictureUrl!)
-                  : null,
-              child: otherUser.profilePictureUrl == null
-                  ? Text(otherUser.displayName[0].toUpperCase())
-                  : null,
-            ),
-            title: Text(otherUser.displayName),
-            subtitle: Text(
-              chatRoom.lastMessage,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            trailing: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  AppUtils.formatTimestamp(chatRoom.lastMessageTime),
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
-                ),
-                if (chatRoom.unreadCount[authState.user!.uid] != null &&
-                    chatRoom.unreadCount[authState.user!.uid]! > 0)
-                  Container(
-                    margin: const EdgeInsets.only(top: 4),
-                    padding: const EdgeInsets.all(6),
-                    decoration:  BoxDecoration(
-                      color: AppColors.primaryColor,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Text(
-                      chatRoom.unreadCount[authState.user!.uid].toString(),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
+          return GestureDetector(
             onTap: () {
               final chatRoomId = AppUtils.getChatRoomId(
                 authState.user!.uid,
@@ -126,10 +83,107 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
               );
               context.push('/chat/$chatRoomId', extra: otherUser);
             },
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 6,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  // Profile picture
+                  CircleAvatar(
+                    radius: 28,
+                    backgroundImage: otherUser.profilePictureUrl != null
+                        ? CachedNetworkImageProvider(otherUser.profilePictureUrl!)
+                        : null,
+                    child: otherUser.profilePictureUrl == null
+                        ? Text(
+                      otherUser.displayName[0].toUpperCase(),
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    )
+                        : null,
+                  ),
+                  const SizedBox(width: 12),
+
+                  // Name + Last Message
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          otherUser.displayName,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          chatRoom.lastMessage,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Time + unread badge
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        AppUtils.formatTimestamp(chatRoom.lastMessageTime),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[500],
+                        ),
+                      ),
+                      if (chatRoom.unreadCount[authState.user!.uid] != null &&
+                          chatRoom.unreadCount[authState.user!.uid]! > 0)
+                        Container(
+                          margin: const EdgeInsets.only(top: 6),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryColor,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            chatRoom.unreadCount[authState.user!.uid].toString(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
+
+        floatingActionButton: FloatingActionButton(
         onPressed: () => _showUsersDialog(context, authState.user!.uid),
         child: const Icon(Icons.add),
       ),

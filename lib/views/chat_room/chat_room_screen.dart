@@ -200,7 +200,9 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
           child: MessageBubble(
             message: message,
             isCurrentUser: isCurrentUser,
+            otherUserImage: isCurrentUser ? null : widget.otherUser.profilePictureUrl,
           ),
+
         );
       },
     );
