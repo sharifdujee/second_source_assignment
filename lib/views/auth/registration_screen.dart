@@ -1,18 +1,14 @@
+import 'package:chat_application/core/constants/app_color.dart';
 import 'package:chat_application/core/constants/app_paddings.dart';
-import 'package:chat_application/core/constants/app_text_styles.dart';
+import 'package:chat_application/widgets/custom_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-
 
 import '../../core/utils/app_utils.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/custom_button.dart';
 import '../../core/dependency_injection/app_provider.dart';
-
-
-
-
 
 class RegisterScreen extends ConsumerWidget {
   const RegisterScreen({super.key});
@@ -21,7 +17,7 @@ class RegisterScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authViewModelProvider);
 
-    // Listen for auth state changes (error, success)
+    /// check user already login or not
     ref.listen(authViewModelProvider, (previous, next) {
       if (next.error != null) {
         AppUtils.showSnackBar(context, next.error!, isError: true);
@@ -31,48 +27,45 @@ class RegisterScreen extends ConsumerWidget {
       }
     });
 
-    final _formKey = GlobalKey<FormState>();
+    final formKey = GlobalKey<FormState>();
     final nameController = TextEditingController();
     final emailController = TextEditingController();
     final passwordController = TextEditingController();
     final confirmPasswordController = TextEditingController();
 
-    void _signUp() {
-      if (_formKey.currentState!.validate()) {
-        ref.read(authViewModelProvider.notifier).signUp(
-          emailController.text.trim(),
-          passwordController.text,
-          nameController.text.trim(),
-        );
+    void signUp() {
+      if (formKey.currentState!.validate()) {
+        ref
+            .read(authViewModelProvider.notifier)
+            .signUp(
+              emailController.text.trim(),
+              passwordController.text,
+              nameController.text.trim(),
+            );
       }
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sign Up'),
-      ),
+      appBar: AppBar(title: const Text('Sign Up')),
       body: SafeArea(
         child: Padding(
           padding: AppPaddings.defaultPadding,
           child: Form(
-            key: _formKey,
+            key: formKey,
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    'Create Account',
-                    style: AppTextStyles.titleStyle,
-                    textAlign: TextAlign.center,
+                  CustomText(
+                    text: "Create Account",
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
                   ),
                   const SizedBox(height: 8),
-                  Text(
-                    'Sign up to get started',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey[600],
-                    ),
-                    textAlign: TextAlign.center,
+                  CustomText(
+                    text: "Sign up to get started",
+                    fontSize: 16,
+                    color: AppColors.greySix,
                   ),
                   const SizedBox(height: 32),
 
@@ -80,8 +73,15 @@ class RegisterScreen extends ConsumerWidget {
                   CustomTextField(
                     controller: nameController,
                     hintText: 'Full Name',
-                    validator: (value) =>
-                    value == null || value.isEmpty ? 'Please enter your name' : null,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your name';
+                      }
+                      if (!AppUtils.isValidUsername(value)) {
+                        return 'Name must be 3–16 characters (letters, numbers, underscore)';
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 16),
 
@@ -94,8 +94,7 @@ class RegisterScreen extends ConsumerWidget {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your email';
                       }
-                      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                          .hasMatch(value)) {
+                      if (!AppUtils.isValidEmail(value)) {
                         return 'Please enter a valid email';
                       }
                       return null;
@@ -112,7 +111,7 @@ class RegisterScreen extends ConsumerWidget {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your password';
                       }
-                      if (value.length < 6) {
+                      if (!AppUtils.isValidPassword(value)) {
                         return 'Password must be at least 6 characters';
                       }
                       return null;
@@ -141,7 +140,7 @@ class RegisterScreen extends ConsumerWidget {
                   CustomButton(
                     text: 'Sign Up',
                     isLoading: authState.isLoading,
-                    onPressed: _signUp,
+                    onPressed: signUp,
                   ),
                   const SizedBox(height: 16),
 
@@ -159,4 +158,3 @@ class RegisterScreen extends ConsumerWidget {
     );
   }
 }
-

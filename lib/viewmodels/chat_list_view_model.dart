@@ -5,6 +5,8 @@ import '../models/user.dart';
 import '../repositories/chat_repository.dart';
 import '../repositories/user_repository.dart';
 
+/// the chat list state and view model  user for handle the logic of chat list
+
 class ChatListState {
   final bool isLoading;
   final List<ChatRoomModel> chatRooms;
@@ -44,12 +46,14 @@ class ChatListViewModel extends StateNotifier<ChatListState> {
         _userRepository = userRepository,
         super(ChatListState());
 
+  /// initially load the chat room if it's exist
+
   void loadUserChatRooms(String userId) {
     _chatRepository.getUserChatRooms(userId).listen((chatRooms) {
       state = state.copyWith(chatRooms: chatRooms);
     });
   }
-
+  /// load all user to display the user data in dialog
   void loadAllUsers() {
     _userRepository.getAllUsers().listen((users) {
       state = state.copyWith(users: users);

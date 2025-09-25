@@ -9,7 +9,6 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../core/dependency_injection/app_provider.dart';
 import '../../core/utils/app_utils.dart';
-import '../../main.dart';
 import '../../viewmodels/profile_view_model.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_text_field.dart';
@@ -27,6 +26,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   final ImagePicker _imagePicker = ImagePicker();
   File? _selectedImage;
 
+
+  /// initially load user profile when user come to the profile page
   @override
   void initState() {
     super.initState();
@@ -54,6 +55,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       }
     });
 
+    /// if profile is loading display a loading indicator
+
     if (profileState.isLoading) {
       return const Scaffold(
         body: LoadingIndicator(message: 'Loading profile...'),
@@ -73,8 +76,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         child: Column(
           children: [
             const SizedBox(height: 20),
+
             _buildProfilePicture(profileState),
             const SizedBox(height: 32),
+            /// Here User can see their name and email also update their name from here , email field is ready only they can see their email but not update it,
+            /// if they can update it they cannot login use the ir credential
             CustomTextField(
               controller: _nameController,
               hintText: 'Display Name',
@@ -158,7 +164,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       ),
     );
   }
-
+  /// select image from their gallery
   void _pickImage() async {
     final pickedFile = await _imagePicker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {

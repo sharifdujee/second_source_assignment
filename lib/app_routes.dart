@@ -11,6 +11,8 @@ import 'core/dependency_injection/app_provider.dart';
 
 import 'models/user.dart';
 
+/// routing navigate the screen
+
 final appRouterProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authViewModelProvider);
 

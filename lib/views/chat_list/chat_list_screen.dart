@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat_application/core/constants/app_color.dart';
+import 'package:chat_application/widgets/custom_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -20,6 +21,7 @@ class ChatListScreen extends ConsumerStatefulWidget {
 
 class _ChatListScreenState extends ConsumerState<ChatListScreen> {
   @override
+  /// initially loading the chatRoom also others user data
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -33,12 +35,15 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    /// create provider for auth state and chat list state 
     final authState = ref.watch(authViewModelProvider);
     final chatListState = ref.watch(chatListViewModelProvider);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Chats'),
+        
+        /// visit profile and logout pop up is displayed when click the three dot
         actions: [
           PopupMenuButton<String>(
             onSelected: (value) {
@@ -61,6 +66,9 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
           ),
         ],
       ),
+      
+      /// first check chat room is empty or not if chatRoom is empty display empty state others case display chat room data, like the chat of others user, display last message, 
+      /// the _buildEmptyState widget create here cause it's only user here
       body: chatListState.chatRooms.isEmpty
           ? _buildEmptyState()
           : ListView.builder(
@@ -91,7 +99,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 6,
                     offset: const Offset(0, 3),
                   ),
@@ -189,9 +197,9 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
       ),
     );
   }
-
+  /// the empty state it's displayed when no chat room is available 
   Widget _buildEmptyState() {
-    return const Center(
+    return  Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -201,26 +209,16 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
             color: Colors.grey,
           ),
           SizedBox(height: 16),
-          Text(
-            'No conversations yet',
-            style: TextStyle(
-              fontSize: 18,
-              color: Colors.grey,
-            ),
-          ),
+          CustomText(text: "No Conversation Available", fontSize: 18,color: AppColors.greySix,),
+          
           SizedBox(height: 8),
-          Text(
-            'Tap the + button to start a new chat',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey,
-            ),
-          ),
+          CustomText(text: "Tap the + button to start a new chat", fontSize: 14,color: AppColors.greySix,),
+
         ],
       ),
     );
   }
-
+  /// when user click the + button in a dialog they can see others user data, from here they can select others user and start conversation
   void _showUsersDialog(BuildContext context, String currentUserId) {
     final chatListState = ref.read(chatListViewModelProvider);
 
@@ -266,6 +264,8 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
       ),
     );
   }
+
+  /// when user click the logout before logout ask them or take consent from user they logout from app or not.
 
   void _showLogoutDialog(BuildContext context) {
     showDialog(

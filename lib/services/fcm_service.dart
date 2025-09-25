@@ -11,72 +11,7 @@ class FcmService {
   static final FlutterLocalNotificationsPlugin _localNotifications =
   FlutterLocalNotificationsPlugin();
 
-  /// Initialize FCM + Local Notifications
-  /*Future<void> initialize() async {
-    // Request permissions
-    await _messaging.requestPermission(
-      alert: true,
-      announcement: false,
-      badge: true,
-      carPlay: false,
-      criticalAlert: false,
-      provisional: false,
-      sound: true,
-    );
-
-    // Background handler
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
-    // Foreground message listener
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print('📩 Got a message in foreground!');
-      print('🔹 Message data: ${message.data}');
-    });
-
-    // Log the token when initialized
-    final token = await _messaging.getToken();
-    log("🔑 Initial FCM Token: $token");
-
-    // Listen for token refresh
-    _messaging.onTokenRefresh.listen((newToken) {
-      log("♻️ FCM Token refreshed: $newToken");
-    });
-
-    log("✅ FCM Service initialized");
-  }
-
-  Future<String?> getToken() async {
-    final token = await _messaging.getToken();
-    log("🔑 getToken() called -> $token");
-    return token;
-  }
-
-  Stream<String> get onTokenRefresh => _messaging.onTokenRefresh;
-
-
-
-
-  /// Show local notification
-  static Future<void> _showLocalNotification(RemoteMessage message) async {
-    const androidDetails = AndroidNotificationDetails(
-      'chat_channel',
-      'Chat Notifications',
-      channelDescription: 'Notification channel for chat messages',
-      importance: Importance.max,
-      priority: Priority.high,
-      showWhen: true,
-    );
-    const iosDetails = DarwinNotificationDetails();
-    const details = NotificationDetails(android: androidDetails, iOS: iosDetails);
-
-    await _localNotifications.show(
-      message.hashCode,
-      message.notification?.title ?? "New Message",
-      message.notification?.body ?? "You received a new message",
-      details,
-      payload: message.data['chatRoomId'] ?? '',
-    );
-  }*/
+ /// initialize push notification it's basically ask user for permission after give the permission generate the fcm token
 
   Future<void> initialize() async {
 
@@ -258,5 +193,5 @@ class FcmService {
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   log("🌙 Background FCM: ${message.notification?.title} - ${message.notification?.body}");
-  //await FcmService._showLocalNotification(message);
+  FcmService._localNotifications;
 }

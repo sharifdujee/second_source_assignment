@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,6 +9,8 @@ import '../models/chat_room.dart';
 import '../models/message.dart';
 import '../repositories/chat_repository.dart';
 
+
+/// this is the chat view model to handle the chat relate business logic here
 
 
 class ChatState {
@@ -22,7 +25,7 @@ class ChatState {
     this.isSending = false,
     this.error,
   });
-
+  /// copy with function use basically for immutable state objects
   ChatState copyWith({
     bool? isLoading,
     List<MessageModel>? messages,
@@ -55,47 +58,46 @@ class ChatViewModel extends StateNotifier<ChatState> {
     required this.otherUserId,
   }) : _chatRepository = chatRepository,
         super(ChatState()) {
-    print("🎯 ChatViewModel constructor called for chatRoom: $chatRoomId");
+
     _initializeChat();
   }
 
   @override
   void dispose() {
-    print("🗑️ Disposing ChatViewModel for chatRoom: $chatRoomId");
+
     _messageSubscription?.cancel();
     super.dispose();
   }
 
+  /// Here initialized the chat
+
   Future<void> _initializeChat() async {
     if (_isInitialized) {
-      print("⚠️ Chat already initialized, skipping");
+
       return;
     }
 
     try {
       _isInitialized = true;
       state = state.copyWith(isLoading: true, error: null);
-      print("🚀 Initializing chat: $chatRoomId");
-      print("👤 Current user: $currentUserId");
-      print("👤 Other user: $otherUserId");
 
-      // STEP 1: Create initial chat room
+
+      /// STEP 1: first create the chat room
       await _ensureChatRoomExists();
 
-      // STEP 2: Set up message listener with a small delay
+      ///  Set up message listener with a small delay
       await Future.delayed(const Duration(milliseconds: 300));
       _loadMessages();
-
-      // STEP 3: Mark messages as read (non-critical)
+      /// after message load check it's already read or not
       _markMessagesAsRead();
     } catch (e) {
-      print("❌ Error initializing chat: $e");
+
       if (mounted) {
         state = state.copyWith(error: e.toString(), isLoading: false);
       }
     }
   }
-
+  /// here check the chat room is exist or not
   Future<void> _ensureChatRoomExists() async {
     try {
       final chatRoom = ChatRoomModel(
@@ -107,27 +109,26 @@ class ChatViewModel extends StateNotifier<ChatState> {
         unreadCount: {currentUserId: 0, otherUserId: 0},
       );
       await _chatRepository.createOrUpdateChatRoom(chatRoom);
-      print("✅ Chat room ensured to exist");
+
     } catch (e) {
-      print("❌ Error ensuring chat room exists: $e");
-      throw e;
+      log("The exception is ${e.toString()}");
+
+
     }
   }
-
+  /// load previous message of the room
   void _loadMessages() {
     try {
-      print("📡 Setting up message listener for chatRoom: $chatRoomId");
 
-      // Cancel existing subscription if any
       _messageSubscription?.cancel();
 
       _messageSubscription = _chatRepository.getChatMessages(chatRoomId).listen(
             (messages) {
-          print("📥 Received ${messages.length} messages in chatRoom: $chatRoomId");
 
-          // Ensure we're still mounted before updating state
+
+
           if (mounted) {
-            // Force state update with debug info
+
             final newState = state.copyWith(
               messages: messages,
               isLoading: false,
@@ -135,14 +136,13 @@ class ChatViewModel extends StateNotifier<ChatState> {
             );
 
             state = newState;
-            print("✅ State updated with ${newState.messages.length} messages");
-            print("🔍 Current state has ${state.messages.length} messages");
+
           } else {
-            print("⚠️ ViewModel not mounted, skipping state update");
+            log("ViewModel not mounted, skipping state update");
           }
         },
         onError: (error) {
-          print("❌ Error in message listener: $error");
+          log("Error in message listener: $error");
           if (mounted) {
             state = state.copyWith(
               isLoading: false,
@@ -152,19 +152,19 @@ class ChatViewModel extends StateNotifier<ChatState> {
         },
       );
     } catch (e) {
-      print("❌ Error setting up message listener: $e");
+      log(" Error setting up message listener: $e");
       if (mounted) {
         state = state.copyWith(error: e.toString(), isLoading: false);
       }
     }
   }
-
+   /// send text message functionality
   Future<void> sendTextMessage(String content) async {
     if (content.trim().isEmpty) return;
 
-    print("🚀 Sending message: '$content' from chatRoom: $chatRoomId");
+    log("🚀 Sending message: '$content' from chatRoom: $chatRoomId");
 
-    // Create the actual message to send
+    /// Create the actual message to send, after send the message display the message in UI.
     final message = MessageModel(
       messageId: _uuid.v4(),
       senderId: currentUserId,
@@ -176,7 +176,7 @@ class ChatViewModel extends StateNotifier<ChatState> {
       isRead: false,
     );
 
-    // Show optimistic update immediately
+    /// Show optimistic update immediately
     final currentMessages = List<MessageModel>.from(state.messages);
     currentMessages.insert(0, message); // Add to top (newest first)
 
@@ -186,15 +186,14 @@ class ChatViewModel extends StateNotifier<ChatState> {
         isSending: true,
         error: null,
       );
-      print("🎯 Optimistic update: added message to UI");
+
     }
 
     try {
       await _chatRepository.sendMessage(message);
-      print("✅ Message sent successfully to Firebase");
-      // The real message will come through the stream listener
+      /// send message on firebase
     } catch (e) {
-      print("❌ Error sending message: $e");
+      log(" Error sending message: $e");
 
       // Remove optimistic message on failure
       if (mounted) {
@@ -213,7 +212,7 @@ class ChatViewModel extends StateNotifier<ChatState> {
       }
     }
   }
-
+  /// send image in message
   Future<void> sendImageMessage(File imageFile) async {
     if (mounted) {
       state = state.copyWith(isSending: true, error: null);
@@ -221,6 +220,7 @@ class ChatViewModel extends StateNotifier<ChatState> {
 
     try {
       final imageUrl = await _chatRepository.uploadMessageImage(imageFile);
+      /// after send the message if image is not null display the image in UI before display first it send in server
       if (imageUrl != null) {
         final message = MessageModel(
           messageId: _uuid.v4(),
@@ -237,7 +237,7 @@ class ChatViewModel extends StateNotifier<ChatState> {
         await _chatRepository.sendMessage(message);
       }
     } catch (e) {
-      print("❌ Error sending image: $e");
+      log(" Error sending image: $e");
       if (mounted) {
         state = state.copyWith(error: e.toString());
       }
@@ -247,13 +247,13 @@ class ChatViewModel extends StateNotifier<ChatState> {
       }
     }
   }
-
+  /// check message status it's read or not
   Future<void> _markMessagesAsRead() async {
     try {
       await Future.delayed(const Duration(seconds: 1));
       await _chatRepository.markMessagesAsRead(chatRoomId, currentUserId);
     } catch (e) {
-      print("⚠️ Could not mark messages as read: $e");
+      log("⚠️ Could not mark messages as read: $e");
     }
   }
 

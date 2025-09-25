@@ -9,7 +9,8 @@ import '../models/message.dart';
 class MessageBubble extends StatelessWidget {
   final MessageModel message;
   final bool isCurrentUser;
-  final String? otherUserImage; // 👈 pass in the profile image of the other user
+  final String? otherUserImage;
+  ///? mark indicate this is optional parameter user can give the value of it or skip it.
 
   const MessageBubble({
     super.key,
@@ -25,7 +26,7 @@ class MessageBubble extends StatelessWidget {
       mainAxisAlignment:
       isCurrentUser ? MainAxisAlignment.end : MainAxisAlignment.start,
       children: [
-        // 👈 Show avatar only for received messages
+        /// 👈 Show avatar only for received messages
         if (!isCurrentUser)
           Padding(
             padding: const EdgeInsets.only(right: 8, bottom: 1),
@@ -40,7 +41,7 @@ class MessageBubble extends StatelessWidget {
             ),
           ),
 
-        // Bubble + time
+        /// Bubble + time
         Column(
           crossAxisAlignment:
           isCurrentUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
@@ -100,7 +101,7 @@ class MessageBubble extends StatelessWidget {
               ),
             ),
 
-            // 👇 Timestamp below bubble
+            /// 👇 Timestamp below bubble , here display the time when or how long they received the message
             Padding(
               padding: const EdgeInsets.only(top: 2, left: 4, right: 4),
               child: Text(

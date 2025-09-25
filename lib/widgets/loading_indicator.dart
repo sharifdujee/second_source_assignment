@@ -1,6 +1,6 @@
 import 'package:chat_application/core/constants/app_color.dart';
 import 'package:flutter/material.dart';
-
+ /// loading indicator use when value is loading display a circular progress
 class LoadingIndicator extends StatelessWidget {
   final String? message;
 

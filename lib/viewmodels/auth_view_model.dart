@@ -44,6 +44,8 @@ class AuthViewModel extends ChangeNotifier {
   bool _isLoading = false;
   String? _error;
 
+
+
   UserModel? get user => _user;
   bool get isAuthenticated => _isAuthenticated;
   bool get isLoading => _isLoading;
@@ -58,6 +60,8 @@ class AuthViewModel extends ChangeNotifier {
         _fcmService = fcmService {
     _init();
   }
+
+  /// initially check the user is exist or not
 
   void _init() {
     _authService.authStateChanges.listen((firebaseUser) async {
@@ -78,6 +82,8 @@ class AuthViewModel extends ChangeNotifier {
     });
   }
 
+  ///login user user email and password here.
+
   Future<void> signIn(String email, String password) async {
     _isLoading = true;
     _error = null;
@@ -93,6 +99,8 @@ class AuthViewModel extends ChangeNotifier {
     }
   }
 
+  /// create new user
+
   Future<void> signUp(String email, String password, String displayName) async {
     _isLoading = true;
     _error = null;
@@ -101,9 +109,9 @@ class AuthViewModel extends ChangeNotifier {
     try {
       final result = await _authService.createUserWithEmail(email, password);
       if (result != null) {
-        await _authService.updateDisplayName(displayName);
+        await _authService.updateUserName(displayName);
 
-        //final fcmToken = await _fcmService.getToken();
+
 
         final newUser = UserModel(
           uid: result.user!.uid,
@@ -112,7 +120,7 @@ class AuthViewModel extends ChangeNotifier {
           createdAt: DateTime.now(),
           lastSeen: DateTime.now(),
           isOnline: true,
-          //fcmToken: fcmToken,
+
         );
 
         await _userRepository.createUser(newUser);
@@ -123,6 +131,8 @@ class AuthViewModel extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  /// logout from system
 
   Future<void> signOut() async {
     if (_user != null) {

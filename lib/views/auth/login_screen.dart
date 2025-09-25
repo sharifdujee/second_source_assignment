@@ -11,8 +11,6 @@ import '../../viewmodels/auth_view_model.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_text_field.dart';
 
-
-
 class LoginScreen extends ConsumerWidget {
   LoginScreen({super.key});
 
@@ -22,10 +20,10 @@ class LoginScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    /// create a provider for authModelProvider, the auth model provider is define inside viewModels
+    /// watch auth state
     final authViewModel = ref.watch(authViewModelProvider);
 
-   /// initially check is user is already login navigate chat screen, for routing use go-router package
+    /// listen for auth changes
     ref.listen<AuthViewModel>(authViewModelProvider, (previous, next) {
       if (next.error != null) {
         AppUtils.showSnackBar(context, next.error!, isError: true);
@@ -40,20 +38,25 @@ class LoginScreen extends ConsumerWidget {
         child: Padding(
           padding: AppPaddings.defaultPadding,
           child: Form(
-            /// form key is used for check the form validation.
             key: _formKey,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                /// custom text is define in constants directory inside core directory
-                CustomText(text: "Welcome Back", textAlign: TextAlign.center,fontSize: 24,),
-
+                CustomText(
+                  text: "Welcome Back",
+                  textAlign: TextAlign.center,
+                  fontSize: 24,
+                ),
                 const SizedBox(height: 8),
-                CustomText(text: "Sign in to your account", fontSize: 16,color: Colors.grey[600],),
-
+                CustomText(
+                  text: "Sign in to your account",
+                  fontSize: 16,
+                  color: Colors.grey[600],
+                ),
                 const SizedBox(height: 48),
-                /// text field for enter user email here check the regular expression
+
+                /// Email Field
                 CustomTextField(
                   controller: _emailController,
                   hintText: 'Email',
@@ -62,14 +65,15 @@ class LoginScreen extends ConsumerWidget {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your email';
                     }
-                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                        .hasMatch(value)) {
+                    if (!AppUtils.isValidEmail(value)) {
                       return 'Please enter a valid email';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 16),
+
+                /// Password Field
                 CustomTextField(
                   controller: _passwordController,
                   hintText: 'Password',
@@ -78,27 +82,32 @@ class LoginScreen extends ConsumerWidget {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your password';
                     }
-                    if (value.length < 6) {
+                    if (!AppUtils.isValidPassword(value)) {
                       return 'Password must be at least 6 characters';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 24),
+
+                /// Sign In Button
                 CustomButton(
                   text: 'Sign In',
                   isLoading: authViewModel.isLoading,
                   onPressed: () {
-                    /// here check the form validation email and password is empty or not
                     if (_formKey.currentState!.validate()) {
-                      ref.read(authViewModelProvider).signIn(
-                        _emailController.text.trim(),
-                        _passwordController.text,
-                      );
+                      ref
+                          .read(authViewModelProvider)
+                          .signIn(
+                            _emailController.text.trim(),
+                            _passwordController.text,
+                          );
                     }
                   },
                 ),
                 const SizedBox(height: 16),
+
+                /// Navigate to Register
                 TextButton(
                   onPressed: () => context.push('/register'),
                   child: const Text("Don't have an account? Sign Up"),
@@ -107,9 +116,7 @@ class LoginScreen extends ConsumerWidget {
             ),
           ),
         ),
-
       ),
     );
   }
 }
-

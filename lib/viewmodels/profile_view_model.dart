@@ -1,11 +1,11 @@
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter/foundation.dart';
+
 import '../models/user.dart';
 import '../repositories/user_repository.dart';
 import '../services/firebase_auth_service.dart';
-
+/// profile state and profile view model, it's use basically  for business logic that are related to user profile
 class ProfileState {
   final bool isLoading;
   final UserModel? user;
@@ -49,7 +49,7 @@ class ProfileViewModel extends StateNotifier<ProfileState> {
   }) : _userRepository = userRepository,
         _authService = authService,
         super(ProfileState());
-
+  /// load user profile use to load login user profile details, fetch the data based on userId
   Future<void> loadUserProfile() async {
     final userId = _authService.currentUser?.uid;
     if (userId != null) {
@@ -62,7 +62,7 @@ class ProfileViewModel extends StateNotifier<ProfileState> {
       }
     }
   }
-
+  /// this is update profile function the user can update their profile if they are authenticated
   Future<void> updateProfile({
     String? displayName,
     File? profilePicture,
@@ -77,7 +77,7 @@ class ProfileViewModel extends StateNotifier<ProfileState> {
 
       if (displayName != null && displayName.isNotEmpty) {
         updates['displayName'] = displayName;
-        await _authService.updateDisplayName(displayName);
+        await _authService.updateUserName(displayName);
       }
 
       if (profilePicture != null) {
