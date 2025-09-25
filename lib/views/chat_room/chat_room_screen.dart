@@ -52,7 +52,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
   final ScrollController _scrollController = ScrollController();
   final ImagePicker _imagePicker = ImagePicker();
 
-  // Keep the screen alive to maintain provider state
+  /// Keep the screen alive to maintain provider state
   @override
   bool get wantKeepAlive => true;
 
